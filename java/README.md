@@ -5,7 +5,7 @@
 * `1.6`, `6` [(6/Dockerfile)](https://github.com/versates/docker/blob/java-6/java/Dockerfile)
 
 
-[![](https://badge.imagelayers.io/versates/docker:java-8.svg)](https://imagelayers.io/?images=versates/docker:java-8 'Get your own badge on imagelayers.io')
+[![](https://images.microbadger.com/badges/image/versates/java.svg)](https://microbadger.com/images/versates/java "Get your own image badge on microbadger.com")
 
 
 Hands-on Docker image for Oracle Java applications.

@@ -2,7 +2,7 @@ FROM debian:jessie
 
 MAINTAINER Versates <docker@versates.com>
 
-ENV JAVA_INSTALLER oracle-java8-installer
+ENV JAVA_INSTALLER oracle-java6-installer
 
 RUN \
   echo "${JAVA_INSTALLER}" shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
@@ -16,8 +16,6 @@ RUN \
   rm -rf /var/lib/apt/lists/* && \
   rm -rf /var/cache/$JAVA_INSTALLER
 
-WORKDIR /data
-
-ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+ENV JAVA_HOME /usr/lib/jvm/java-6-oracle
 
 CMD "bash"

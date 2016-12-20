@@ -10,14 +10,12 @@ RUN addgroup -S mysql && adduser -h /var/lib/mysql -D -S -G mysql mysql \
          pwgen \
          mariadb \
          mariadb-client \
-    && rm -rf /var/cache/apk/* \
-    && mkdir -p "/usr/local/docker/entrypoint/initdb.d" \
-    && mkdir "/usr/local/docker/bin"
+    && rm -rf /var/cache/apk/*
 
 VOLUME "/var/lib/mysql"
 
 EXPOSE 3306
 
-COPY entrypoint "/usr/local/docker/bin/"
-ENTRYPOINT [ "/usr/local/docker/bin/entrypoint" ]
+COPY entrypoint /usr/local/bin/
+ENTRYPOINT [ "entrypoint" ]
 CMD [ "/usr/bin/mysqld" ]

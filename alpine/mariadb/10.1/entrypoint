@@ -26,10 +26,10 @@ _setup() {
         MYSQL_DATABASE=${MYSQL_DATABASE:-""}
         MYSQL_USER=${MYSQL_USER:-""}
         MYSQL_PASSWORD=${MYSQL_PASSWORD:-`pwgen 16 1`}
-        INITDIR="/usr/local/docker/entrypoint/initdb.d"
+        INITDIR="/var/docker/entrypoint.d"
 
-        if [ -f "/usr/local/docker/etc/env" ]; then
-            source "/usr/local/docker/etc/env"
+        if [ -f "/etc/conf.d/docker" ]; then
+            source "/etc/conf.d/docker"
         fi
 
         if [ ! -d "/run/mysqld" ]; then
@@ -95,7 +95,7 @@ _setup() {
         fi
 
         echo "MySQL root password: ${MYSQL_ROOT_PASSWORD}"
-        [[ -n "${MYSQL_USER}" ]] && echo "MySQL user password: ${MYSQL_PASSWORD}"
+        [[ -n "${MYSQL_DATABASE}" -a -n "${MYSQL_USER}" ]] && echo "MySQL user password: ${MYSQL_PASSWORD}"
     fi
 }
 

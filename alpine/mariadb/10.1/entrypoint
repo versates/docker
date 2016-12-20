@@ -1,6 +1,4 @@
 #!/bin/sh
-set -e
-
 APP="/usr/bin/mysqld"
 APP_USER="mysql"
 APP_GROUP="mysql"
@@ -10,6 +8,12 @@ if [ "${1:0:1}" = '-' ]; then
 fi
 
 set -- "$@" --user="${APP_USER}" --log-bin=docker
+
+_quit() {
+    code="$?"
+    echo "Failed to finish installation. Exiting with code ${code}"
+    exit "${code}"
+}
 
 _setup() {
     if [ "$1" = "${APP}" -a "$(id -u)" = '0' ]; then
@@ -40,14 +44,14 @@ _setup() {
         "$@" --skip-networking &
         PID="$!"
 
-        sleep 5
+        sleep 3
 
         for i in 10 9 8 7 6 5 4 3 2 1 0; do
-            if echo 'SELECT 1' | /usr/bin/mysql -uroot; then
+            if echo 'SELECT 1' | /usr/bin/mysql -uroot &> /dev/null ; then
                 break
             fi
             echo 'MySQL init process in progress...'
-            sleep 5
+            sleep 3
         done
 
         if [ "$i" = 0 ]; then
@@ -94,11 +98,11 @@ _setup() {
             exit 1
         fi
 
-        echo "MySQL root password: ${MYSQL_ROOT_PASSWORD}"
-        [[ -n "${MYSQL_DATABASE}" -a -n "${MYSQL_USER}" ]] && echo "MySQL user password: ${MYSQL_PASSWORD}"
+        echo "MySQL root password: ${MYSQL_ROOT_PASSWORD}";
+        [ -n "${MYSQL_DATABASE}" -a -n "${MYSQL_USER}" ] && echo "MySQL user password: ${MYSQL_PASSWORD}";
     fi
 }
 
-[[ ! -d /var/lib/mysql/mysql ]] && _setup "$@";
+[ ! -d /var/lib/mysql/mysql ] && _setup "$@";
 
 exec "$@" --console

@@ -1,7 +1,9 @@
 #!/bin/sh
-APP="/usr/bin/mysqld"
+APP="mysqld"
 APP_USER="mysql"
 APP_GROUP="mysql"
+
+[ $(echo "${PATH}" | grep "/usr/bin") ] || PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 if [ "${1:0:1}" = '-' ]; then
     set -- "${APP}" "$@"
@@ -24,7 +26,7 @@ _setup() {
             awk '{ print } $1 == "[mysqld]" && c == 0 { c = 1; system("cat") }' /tmp/my.cnf > /tmp/my.cnf.tmp
         mv /tmp/my.cnf.tmp /etc/mysql/my.cnf
         rm -f /tmp/my.cnf
-        /usr/bin/mysql_install_db --datadir="/var/lib/mysql" --log-bin=docker --user=mysql;
+        mysql_install_db --datadir="/var/lib/mysql" --log-bin=docker --user=mysql;
 
         MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-`pwgen 16 1`}
         MYSQL_DATABASE=${MYSQL_DATABASE:-""}
@@ -47,7 +49,7 @@ _setup() {
         sleep 3
 
         for i in 10 9 8 7 6 5 4 3 2 1 0; do
-            if echo 'SELECT 1' | /usr/bin/mysql -uroot &> /dev/null ; then
+            if echo 'SELECT 1' | mysql -uroot &> /dev/null ; then
                 break
             fi
             echo 'MySQL init process in progress...'
@@ -77,19 +79,19 @@ _setup() {
 
         echo "FLUSH PRIVILEGES;" >> "${SCHEMA}"
 
-        /usr/bin/mysql -uroot < "${SCHEMA}"
+        mysql -uroot < "${SCHEMA}"
 
         if [ -d "${INITDIR}" ]; then
             for f in "${INITDIR}/*"; do
                 case "$f" in
                     *.sh)  echo "$0: running $f"; . "$f" ;;
-                    *.sql) echo "$0: running $f"; /usr/bin/mysql -uroot < "$f" && echo ;;
+                    *.sql) echo "$0: running $f"; mysql -uroot < "$f" && echo ;;
                     *)     echo "$0: ignoring $f" ;;
                 esac
             done
         fi
 
-        /usr/bin/mysqladmin -u root password "${MYSQL_ROOT_PASSWORD}"
+        mysqladmin -u root password "${MYSQL_ROOT_PASSWORD}"
 
         rm -f "${SCHEMA}"
 

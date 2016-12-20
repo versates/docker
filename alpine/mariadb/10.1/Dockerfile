@@ -18,4 +18,4 @@ EXPOSE 3306
 
 COPY entrypoint /usr/local/bin/
 ENTRYPOINT [ "entrypoint" ]
-CMD [ "/usr/bin/mysqld" ]
+CMD [ "mysqld" ]

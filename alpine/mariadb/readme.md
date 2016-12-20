@@ -39,18 +39,23 @@ If `MYSQL_USER` is provided and `MYSQL_PASSOWRD` is not, a random password will 
 ### Defining environment variables with a file
 Alternatively, you can define your environment variables in the file `/etc/conf.d/docker`.
 Create a file with the contents:
+
 ```
 MYSQL_ROOT_PASSWORD=secret
 MYSQL_DATABASE=mydb
 MYSQL_USER=mydbuser
 MYSQL_PASSWORD=secret
 ```
+
+
 And then run:
+
 `docker run -d -p 3306:3306 -v path-to-your-local-env-file:/etc/conf.d/docker versates/mariadb`
 
 ### Customize your database
 If you need to add additional features, or even load your database, you can add scripts to `/var/docker/entrypoint.d`.
 Shell and SQL scripts are supported (be aware that `bash` is not nativelly supported by Alpine Linux, as it uses `ash`).
+
 `docker run -d -p 3306:3306 -v path-to-your-scripts-dir:/var/docker/entrypoint.d versates/mariadb`
 
 ## Supported Docker versions

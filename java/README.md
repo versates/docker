@@ -1,6 +1,6 @@
 # Oracle Java for Docker
-## Supported tags and respective `Dockerfile` links
-* `1.8`, `8`, `latest`, `stable` [(8/Dockerfile)](https://github.com/versates/docker/blob/latest/java/8/Dockerfile)
+## Supported tags
+* `1.8`, `8`, `latest` [(8/Dockerfile)](https://github.com/versates/docker/blob/latest/java/8/Dockerfile)
 * `1.7`, `7` [(7/Dockerfile)](https://github.com/versates/docker/blob/latest/java/7/Dockerfile)
 
 [![](https://images.microbadger.com/badges/image/versates/java.svg)](https://microbadger.com/images/versates/java "Get your own image badge on microbadger.com")
@@ -16,7 +16,7 @@ Hands-on Docker image for Oracle Java applications.
 
 # Supported Docker versions
 This image is officially supported on Docker version 1.12.3.
-Support for older versions (down to 1.6) is provided on a best-effort basis.
+Support for older versions (down to 1.7) is provided on a best-effort basis.
 Please see the [Docker installation documentation](https://docs.docker.com/installation/) for details on how to upgrade your Docker daemon.
 
 # Contributing

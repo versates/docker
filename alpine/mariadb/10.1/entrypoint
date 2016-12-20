@@ -1,0 +1,104 @@
+#!/bin/sh
+set -e
+
+APP="/usr/bin/mysqld"
+APP_USER="mysql"
+APP_GROUP="mysql"
+
+if [ "${1:0:1}" = '-' ]; then
+    set -- "${APP}" "$@"
+fi
+
+set -- "$@" --user="${APP_USER}" --log-bin=docker
+
+_setup() {
+    if [ "$1" = "${APP}" -a "$(id -u)" = '0' ]; then
+        sed -ri 's/^user\s/#&/' /etc/mysql/my.cnf
+        sed -Ei 's/^(bind-address|log)/#&/' /etc/mysql/my.cnf
+        cat /etc/mysql/my.cnf | sed -e "s/^datadir.*$/datadir=\/var\/lib\/mysql\//" > /tmp/my.cnf
+        echo -e 'skip-host-cache\nskip-name-resolve' | \
+            awk '{ print } $1 == "[mysqld]" && c == 0 { c = 1; system("cat") }' /tmp/my.cnf > /tmp/my.cnf.tmp
+        mv /tmp/my.cnf.tmp /etc/mysql/my.cnf
+        rm -f /tmp/my.cnf
+        /usr/bin/mysql_install_db --datadir="/var/lib/mysql" --log-bin=docker --user=mysql;
+
+        MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-`pwgen 16 1`}
+        MYSQL_DATABASE=${MYSQL_DATABASE:-""}
+        MYSQL_USER=${MYSQL_USER:-""}
+        MYSQL_PASSWORD=${MYSQL_PASSWORD:-`pwgen 16 1`}
+        INITDIR="/usr/local/docker/entrypoint/initdb.d"
+
+        if [ -f "/usr/local/docker/etc/env" ]; then
+            source "/usr/local/docker/etc/env"
+        fi
+
+        if [ ! -d "/run/mysqld" ]; then
+            mkdir -p /run/mysqld
+            chown -R "${APP_USER}":"${APP_GROUP}" /run/mysqld
+        fi
+
+        "$@" --skip-networking &
+        PID="$!"
+
+        sleep 5
+
+        for i in 10 9 8 7 6 5 4 3 2 1 0; do
+            if echo 'SELECT 1' | /usr/bin/mysql -uroot; then
+                break
+            fi
+            echo 'MySQL init process in progress...'
+            sleep 5
+        done
+
+        if [ "$i" = 0 ]; then
+            echo >&2 'MySQL init process failed.'
+            exit 1
+        fi
+
+        SCHEMA=$(mktemp)
+        echo "SET @@SESSION.SQL_LOG_BIN=0;" > "${SCHEMA}"
+        echo "CREATE USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';" >> "${SCHEMA}"
+        echo "GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION;" >> "${SCHEMA}"
+        echo "DROP DATABASE IF EXISTS test;" >> "${SCHEMA}"
+
+        if [ -n "${MYSQL_DATABASE}" ]; then
+            echo "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\` CHARACTER SET utf8 COLLATE utf8_general_ci;" \
+                >> "${SCHEMA}"
+
+            if [ -n "${MYSQL_USER}" ]; then
+                echo "CREATE USER '"${MYSQL_USER}"'@'%' IDENTIFIED BY '"${MYSQL_PASSWORD}"';" >> "${SCHEMA}"
+                echo "GRANT ALL ON \`${MYSQL_DATABASE}\`.* TO '"${MYSQL_USER}"'@'%';" >> "${SCHEMA}"
+            fi
+        fi
+
+        echo "FLUSH PRIVILEGES;" >> "${SCHEMA}"
+
+        /usr/bin/mysql -uroot < "${SCHEMA}"
+
+        if [ -d "${INITDIR}" ]; then
+            for f in "${INITDIR}/*"; do
+                case "$f" in
+                    *.sh)  echo "$0: running $f"; . "$f" ;;
+                    *.sql) echo "$0: running $f"; /usr/bin/mysql -uroot < "$f" && echo ;;
+                    *)     echo "$0: ignoring $f" ;;
+                esac
+            done
+        fi
+
+        /usr/bin/mysqladmin -u root password "${MYSQL_ROOT_PASSWORD}"
+
+        rm -f "${SCHEMA}"
+
+        if ! kill -s TERM "${PID}" || ! wait "${PID}"; then
+            echo >&2 'MySQL init process failed.'
+            exit 1
+        fi
+
+        echo "MySQL root password: ${MYSQL_ROOT_PASSWORD}"
+        [[ -n "${MYSQL_USER}" ]] && echo "MySQL user password: ${MYSQL_PASSWORD}"
+    fi
+}
+
+[[ ! -d /var/lib/mysql/mysql ]] && _setup "$@";
+
+exec "$@" --console

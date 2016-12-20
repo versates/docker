@@ -1,9 +1,7 @@
 # Oracle Java for Docker
 ## Supported tags and respective `Dockerfile` links
-* `1.8`, `8`, `latest` [(8/Dockerfile)](https://github.com/versates/docker/blob/java-8/java/Dockerfile)
-* `1.7`, `7`, `stable` [(7/Dockerfile)](https://github.com/versates/docker/blob/java-7/java/Dockerfile)
-* `1.6`, `6` [(6/Dockerfile)](https://github.com/versates/docker/blob/java-6/java/Dockerfile)
-
+* `1.8`, `8`, `latest`, `stable` [(8/Dockerfile)](https://github.com/versates/docker/blob/latest/java/8/Dockerfile)
+* `1.7`, `7` [(7/Dockerfile)](https://github.com/versates/docker/blob/latest/java/7/Dockerfile)
 
 [![](https://images.microbadger.com/badges/image/versates/java.svg)](https://microbadger.com/images/versates/java "Get your own image badge on microbadger.com")
 

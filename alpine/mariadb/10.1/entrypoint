@@ -3,29 +3,20 @@ APP="mysqld"
 APP_USER="mysql"
 APP_GROUP="mysql"
 
-[ $(echo "${PATH}" | grep "/usr/bin") ] || PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
 if [ "${1:0:1}" = '-' ]; then
     set -- "${APP}" "$@"
 fi
 
 set -- "$@" --user="${APP_USER}" --log-bin=docker
 
-_quit() {
-    code="$?"
-    echo "Failed to finish installation. Exiting with code ${code}"
-    exit "${code}"
-}
-
 _setup() {
     if [ "$1" = "${APP}" -a "$(id -u)" = '0' ]; then
-        sed -ri 's/^user\s/#&/' /etc/mysql/my.cnf
+        sed -Ei 's/^user\s/#&/' /etc/mysql/my.cnf
         sed -Ei 's/^(bind-address|log)/#&/' /etc/mysql/my.cnf
-        cat /etc/mysql/my.cnf | sed -e "s/^datadir.*$/datadir=\/var\/lib\/mysql\//" > /tmp/my.cnf
+        sed -Ei 's/^datadir.*$/datadir=\/var\/lib\/mysql\//' /etc/mysql/my.cnf
         echo -e 'skip-host-cache\nskip-name-resolve' | \
-            awk '{ print } $1 == "[mysqld]" && c == 0 { c = 1; system("cat") }' /tmp/my.cnf > /tmp/my.cnf.tmp
-        mv /tmp/my.cnf.tmp /etc/mysql/my.cnf
-        rm -f /tmp/my.cnf
+            awk '{ print } $1 == "[mysqld]" && c == 0 { c = 1; system("cat") }' /etc/mysql/my.cnf > /tmp/my.cnf
+        mv /tmp/my.cnf /etc/mysql/my.cnf
         mysql_install_db --datadir="/var/lib/mysql" --log-bin=docker --user=mysql;
 
         MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-`pwgen 16 1`}

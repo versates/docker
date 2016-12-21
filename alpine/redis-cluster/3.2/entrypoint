@@ -1,0 +1,12 @@
+#!/bin/sh
+NODE_TIMEOUT=${NODE_TIMEOUT:-5000}
+
+echo "$@" | grep -qve '^redis-server' && set -- redis-server "$@"
+echo "$@" | grep -qve '\.conf' && set -- "$@" /etc/redis.conf
+
+if [ "$1" = 'redis-server' -a "$(id -u)" = '0' ]; then
+    chown -R redis:redis .
+    exec su-exec redis:redis "$0" "$@"
+fi
+
+exec "$@"

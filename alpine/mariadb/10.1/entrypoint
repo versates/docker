@@ -73,7 +73,7 @@ _setup() {
         mysql -uroot < "${SCHEMA}"
 
         if [ -d "${INITDIR}" ]; then
-            for f in "${INITDIR}/*"; do
+            for f in ${INITDIR}/*; do
                 case "$f" in
                     *.sh)  echo "$0: running $f"; . "$f" ;;
                     *.sql) echo "$0: running $f"; mysql -uroot < "$f" && echo ;;

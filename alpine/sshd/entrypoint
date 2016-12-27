@@ -1,12 +1,9 @@
-#!/bin/bash
-set -e
-
-[[ ! "$(ls -A /etc/ssh)" ]] && cp -a /etc/ssh.cache/* /etc/ssh/
-[[ ! ls /etc/ssh/ssh_host_* 1> /dev/null 2>&1 ]] && ssh-keygen -A
-[[ -w ~/.ssh ]] && chown root:root ~/.ssh && chmod 700 ~/.ssh/
-[[ -w ~/.ssh/authorized_keys ]] && chown root:root ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
-[[ ! -e ~/.ssh/authorized_keys ]] && exit 1
-[[ ! -d /var/run/sshd ]] && mkdir -p /var/run/sshd
+#!/bin/sh
+[ -f /etc/ssh/ssh_host_rsa_key ] || ssh-keygen -A
+[ -w ~/.ssh ] && chown root:root ~/.ssh && chmod 700 ~/.ssh/
+[ -w ~/.ssh/authorized_keys ] && chown root:root ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
+[ -d /var/run/sshd ] || mkdir -p /var/run/sshd
+[ ! -e ~/.ssh/authorized_keys ] && echo "No authorized key was provided." && exit 1
 
 quit() {
     PID=$(cat /var/run/sshd/sshd.pid) && kill -SIGTERM "${PID}" && wait "${PID}"

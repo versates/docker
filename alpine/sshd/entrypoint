@@ -1,9 +1,6 @@
 #!/bin/sh
-[ -f /etc/ssh/ssh_host_rsa_key ] || ssh-keygen -A
-[ -w ~/.ssh ] && chown root:root ~/.ssh && chmod 700 ~/.ssh/
-[ -w ~/.ssh/authorized_keys ] && chown root:root ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
-[ -d /var/run/sshd ] || mkdir -p /var/run/sshd
 [ ! -e ~/.ssh/authorized_keys ] && echo "No authorized key was provided." && exit 1
+[ -w ~/.ssh/authorized_keys ] && chown root:root ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
 
 quit() {
     PID=$(cat /var/run/sshd/sshd.pid) && kill -SIGTERM "${PID}" && wait "${PID}"

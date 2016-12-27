@@ -1,2 +1,17 @@
 #!/bin/sh
+quit() {
+    PID=$(cat /var/run/kafka/kafka.pid) && kill -SIGTERM "${PID}" && wait "${PID}"
+}
 
+if [ "$(basename $1)" = 'start-server' ]; then
+    if [ "$(id -u)" = '0' ]; then
+        chown -R kafka:kafka .
+        exec su-exec kafka:kafka "$0" "$@"
+    fi
+
+    trap quit SIGINT SIGTERM
+    $@ &
+    echo "$!" > /var/run/sshd/sshd.pid && wait "$!" && exit $?
+else
+    exec "$@"
+fi

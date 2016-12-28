@@ -1,0 +1,19 @@
+#!/bin/sh
+PIDFILE=/var/run/fakes3/fakes3.pid
+
+quit() {
+    PID=$(cat "${PIDFILE}") && kill -SIGTERM "${PID}" && wait "${PID}"
+}
+
+if [ "$(basename $1)" = 'fakes3' ]; then
+    if [ "$(id -u)" = '0' ]; then
+        chown -R fakes3:fakes3 .
+        exec su-exec fakes3:fakes3 "$0" "$@"
+    fi
+
+    trap quit SIGINT SIGTERM
+    $@ &
+    echo "$!" > "$PIDFILE" && wait "$!" && exit "$?"
+else
+    exec "$@"
+fi

@@ -1,6 +1,6 @@
 #!/bin/sh
 quit() {
-    PID=$(cat /var/run/kafka/kafka.pid) && kill -SIGTERM "${PID}" && wait "${PID}"
+    stop-server
 }
 
 if [ "$(basename $1)" = 'start-server' ]; then
@@ -10,8 +10,7 @@ if [ "$(basename $1)" = 'start-server' ]; then
     fi
 
     trap quit SIGINT SIGTERM
-    $@ &
-    echo "$!" > /var/run/sshd/sshd.pid && wait "$!" && exit $?
+    $@
 else
     exec "$@"
 fi

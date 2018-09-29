@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:stretch-slim
 
 MAINTAINER Versates <docker@versates.com>
 

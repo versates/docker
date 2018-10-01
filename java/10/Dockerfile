@@ -1,6 +1,6 @@
 FROM debian:stretch-slim
 
-MAINTAINER Versates <docker@versates.com>
+LABEL maintainer="Versates <docker@versates.com>"
 
 ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US.UTF-8" \

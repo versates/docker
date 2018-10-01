@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+quit() {
+    bitcoin-cli -rpcuser=bitcoin -rpcpassword=secret stop && \
+        [ -f "${PIDFILE}" ] && PID=$(cat "${PIDFILE}") && kill -SIGTERM "${PID}" && wait "${PID}"
+}
+
+if [ "$(basename $1)" = 'bitcoind' ]; then
+    [ "${TESTNET}" = "true" ] && set -- "$@" -testnet
+
+    set -- "$@" -datadir="${BITCOIN_DATA}" -pid="${PIDFILE}"
+
+    trap quit SIGINT SIGTERM
+
+    exec "$@" &
+
+    echo "$!" > "$PIDFILE" && wait "$!" && exit "$?"
+else
+    exec "$@"
+fi

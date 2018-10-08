@@ -1,6 +1,6 @@
 FROM debian:stretch-slim
 
-LABEL vendor="Versates, Inc" maintainer="docker@versates.com" version="1.0.0"
+LABEL vendor="Versates, Inc" maintainer="Ramses Vidor (@ramsvidor)" version="1.0.0"
 
 ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US.UTF-8" \
@@ -17,7 +17,7 @@ RUN apt-get update -q && \
     apt-get install -y nodejs && \
     npm install -g --no-optional blockchain-wallet-service && \
     apt-get clean -q && \
-    unset DEBIAN_FRONTEND DEBCONF_NONINTERACTIVE_SEEN DOWNLOAD_URL BITCOIN_VERSION && \
+    unset DEBIAN_FRONTEND DEBCONF_NONINTERACTIVE_SEEN && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /var/cache/apt/* && \
     rm -rf /var/tmp/* && \

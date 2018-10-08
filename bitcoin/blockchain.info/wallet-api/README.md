@@ -1,6 +1,6 @@
 # BlockChain.info Wallet API
 ## Supported tags
-* `0.20`, `latest` [(10/Dockerfile)](https://github.com/versates/docker/blob/latest/bitcoin/blockchain.info/wallet-api/Dockerfile)
+* `0.26`, `latest` [(10/Dockerfile)](https://github.com/versates/docker/blob/latest/bitcoin/blockchain.info/wallet-api/Dockerfile)
 
 Hands-on Docker image for Blockchain.info Wallet applications.
 

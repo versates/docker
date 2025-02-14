@@ -1,4 +1,4 @@
-FROM alpine:3.4
+FROM alpine:3.19.6
 
 MAINTAINER Versates <docker@versates.com>
 
